@@ -1,14 +1,21 @@
 import os
 import asyncio
+import logging
 
 from aiogram import Bot, Dispatcher, F
+from aiogram.fsm.context import FSMContext
 
-from aiogram.types import Message, BotCommand, CallbackQuery
+from aiogram.types import Message, BotCommand, CallbackQuery, ReplyKeyboardRemove
+
 from aiogram.filters import CommandStart, Command
 from dotenv import load_dotenv
 
 import keyboards as kb
+from db_interaction import db
+from services import handle_questionnaire
+from states import Questionnaire
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 load_dotenv()
 
@@ -25,6 +32,10 @@ commands = [
 
 @dp.callback_query()
 async def get_callback(callback: CallbackQuery):
+    logging.info(f"Callback {callback.data} от {callback.from_user.id}")
+    await callback.message.edit_reply_markup(reply_markup=None)
+
+
     if callback.data == "hile":
         await callback.message.answer('Hile!')
     elif callback.data == "f off":
@@ -34,8 +45,10 @@ async def get_callback(callback: CallbackQuery):
     elif callback.data == "it's just an image you little jewish":
         await callback.message.answer("gotcha!try to steal this coin you vile jew")
 
+
 @dp.message(CommandStart())
 async def start_command(message: Message):
+    logging.info(f"Пользователь {message.from_user.id} начал бота")
     await message.answer("Hello i'm ur 1st bot",reply_markup= kb.main_page_keyboard )
 
 
@@ -55,15 +68,27 @@ async def info_command(message: Message):
     await message.answer(commands_text)
 
 
-@dp.message(F.text)
-async def message_handler(message: Message):
-    if message.text == "AI CHAT":
-        await message.answer("Пока что в режиме разработки",reply_markup=kb.inline_keyboard_AI_CHAT)
 
-    elif message.text == "AI IMAGE":
-        await message.answer("Пока что в режиме ожидания",reply_markup=kb.inline_keyboard_AI_IMAGE )
+@dp.message(F.text)
+async def message_handler(message: Message,state: FSMContext):
+    current_state = await state.get_state()
+    user = await db.check_user(message.chat.id)
+    if user is None:
+        await db.add_user(message.chat.id, message.from_user.username)
+    if current_state is not None:
+        await handle_questionnaire(message,state)
     else:
-        await message.answer(f"you typed {message.text}")
+        if message.text == "AI CHAT":
+            await message.answer("Пока что в режиме разработки",reply_markup=kb.inline_keyboard_AI_CHAT)
+
+        elif message.text == "AI IMAGE":
+            await message.answer("Пока что в режиме ожидания",reply_markup=kb.inline_keyboard_AI_IMAGE )
+        elif message.text == "close":
+            await message.answer("Keyboard is closed",reply_markup=ReplyKeyboardRemove())
+        elif message.text == "Make an order":
+            await message.answer("Что вас интересует?")
+        else:
+            await message.answer(f"you typed {message.text}")
 
 
 @dp.message(F.photo)
@@ -72,7 +97,14 @@ async def photo_handler(message: Message):
 
 async def main():
     await bot.set_my_commands(commands)
-    await dp.start_polling(bot)
+    try:
+        print("Bot started")
+        await dp.start_polling(bot)
+        await db.connect()
+    except Exception as e:
+        print(e)
+    finally:
+        await db.disconnect()
 
 
 if __name__ == '__main__':

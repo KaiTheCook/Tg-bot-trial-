@@ -6,8 +6,8 @@ main_page_keyboard = types.ReplyKeyboardMarkup(
         [
             types.KeyboardButton(text="AI CHAT"),
             types.KeyboardButton(text="AI IMAGE"),
-            types.KeyboardButton(text="close")
-
+            types.KeyboardButton(text="Close"),
+            types.KeyboardButton(text="Make an order")
         ],
     ],
     resize_keyboard = True
@@ -28,6 +28,15 @@ inline_keyboard_AI_IMAGE = types.InlineKeyboardMarkup(
         [
             types.InlineKeyboardButton(text="🍉", callback_data="well well well"),
             types.InlineKeyboardButton(text="🪙", callback_data="it's just an image you little jewish"),
+        ]
+    ]
+)
+
+inline_keyboard_Make_AN_ORDER = types.InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            types.InlineKeyboardButton(text="", callback_data=""),
+
         ]
     ]
 )
