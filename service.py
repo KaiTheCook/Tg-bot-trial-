@@ -11,8 +11,7 @@ from db_interaction import db
 
 load_dotenv()
 
-WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENWEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
 async def gender_handler(message: Message, state: FSMContext):
     await state.update_data(gender=message.text)
@@ -49,7 +48,7 @@ async def handle_questionnaire(message: Message, state: FSMContext):
 
 
 async def handle_weather(message: Message):
-    url = f"https://api.openweathermap.org/data/2.5/weather?q=Бишкек&appid={WEATHER_API_KEY}&units=metric"
+    url = f"https://api.openweathermap.org/data/2.5/weather?q=Бишкек&appid={OPENWEATHER_API_KEY }&units=metric"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 200:
@@ -62,7 +61,6 @@ async def handle_weather(message: Message):
                                      f"{type_}")
             else:
                 await message.answer("Sorry . Service does not respond.")
-
 
 async def chat_with_ai(message: Message):
     try:

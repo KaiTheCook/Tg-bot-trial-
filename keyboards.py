@@ -9,6 +9,10 @@ main_page_keyboard = types.ReplyKeyboardMarkup(
             types.KeyboardButton(text="Close"),
             types.KeyboardButton(text="Make an order")
         ],
+        [
+            types.KeyboardButton(text="WEATHER"),
+            types.KeyboardButton(text="QUESTIONNAIRE")
+        ]
     ],
     resize_keyboard = True
 )

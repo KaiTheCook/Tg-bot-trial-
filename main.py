@@ -2,6 +2,7 @@ import os
 import asyncio
 import logging
 
+import service
 from aiogram import Bot, Dispatcher, F
 from aiogram.fsm.context import FSMContext
 
@@ -12,7 +13,7 @@ from dotenv import load_dotenv
 
 import keyboards as kb
 from db_interaction import db
-from services import handle_questionnaire
+from service import handle_weather
 from states import Questionnaire
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -69,14 +70,14 @@ async def info_command(message: Message):
 
 
 
-@dp.message(F.text)
+@dp.message()
 async def message_handler(message: Message,state: FSMContext):
     current_state = await state.get_state()
     user = await db.check_user(message.chat.id)
     if user is None:
         await db.add_user(message.chat.id, message.from_user.username)
     if current_state is not None:
-        await handle_questionnaire(message,state)
+        await service.handle_questionnaire(message,state)
     else:
         if message.text == "AI CHAT":
             await message.answer("Пока что в режиме разработки",reply_markup=kb.inline_keyboard_AI_CHAT)
@@ -85,10 +86,12 @@ async def message_handler(message: Message,state: FSMContext):
             await message.answer("Пока что в режиме ожидания",reply_markup=kb.inline_keyboard_AI_IMAGE )
         elif message.text == "close":
             await message.answer("Keyboard is closed",reply_markup=ReplyKeyboardRemove())
-        elif message.text == "Make an order":
+        elif message.text == "QUESTIONNAIRE":
             await message.answer("Что вас интересует?")
+        elif message.text == "WEATHER":
+            await service.handle_weather(message)
         else:
-            await message.answer(f"you typed {message.text}")
+            await service.chat_with_ai(message)
 
 
 @dp.message(F.photo)
