@@ -12,6 +12,8 @@ from db_interaction import db
 load_dotenv()
 
 OPENWEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 
 async def gender_handler(message: Message, state: FSMContext):
     await state.update_data(gender=message.text)
