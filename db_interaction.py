@@ -1,7 +1,6 @@
 import asyncpg
 import os
 
-from aiogram.utils.markdown import hstrikethrough
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -35,6 +34,7 @@ class Database:
                 FROM users WHERE tg_id=$1
                 """, tg_id
             )
+            return user
 
 
     async def add_user(self,tg_id,username):

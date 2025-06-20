@@ -2,8 +2,8 @@ import os
 import asyncio
 import logging
 
-import service
 from aiogram import Bot, Dispatcher, F
+from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 
 from aiogram.types import Message, BotCommand, CallbackQuery, ReplyKeyboardRemove
@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 
 import keyboards as kb
 from db_interaction import db
-from service import handle_weather
+import service as service
 from states import Questionnaire
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -87,7 +87,8 @@ async def message_handler(message: Message,state: FSMContext):
         elif message.text == "close":
             await message.answer("Keyboard is closed",reply_markup=ReplyKeyboardRemove())
         elif message.text == "QUESTIONNAIRE":
-            await message.answer("Что вас интересует?")
+            await state.set_state(Questionnaire.gender)
+            await message.answer("Какой у тебя пол?")
         elif message.text == "WEATHER":
             await service.handle_weather(message)
         else:
@@ -102,8 +103,8 @@ async def main():
     await bot.set_my_commands(commands)
     try:
         print("Bot started")
-        await dp.start_polling(bot)
         await db.connect()
+        await dp.start_polling(bot)
     except Exception as e:
         print(e)
     finally:

@@ -75,14 +75,18 @@ async def chat_with_ai(message: Message):
                 {
                     "role": "user",
                     "content": f"{message.text}"
-                },
-                {
-                    "role": "system",
-                    "content": "Ты помошник по географии. Отвечай на вопросы только по географии"
                 }
+                # {
+                #     "role": "system",
+                #     "content": "Ты помошник по географии. Отвечай на вопросы только по географии"
+                # }
             ]
         )
         reply = completion.choices[0].message.content
         await message.answer(reply)
     except Exception as e:
         print(e)
+
+
+current_dir = "generated_images"
+os.makedirs(current_dir, exist_ok=True)
