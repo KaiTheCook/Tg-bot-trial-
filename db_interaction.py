@@ -17,6 +17,7 @@ class Database:
         self.pool = await asyncpg.create_pool(
             user=self.user,
             password = self.password,
+            database=self.database,
             host = self.host,
             port = self.port
         )

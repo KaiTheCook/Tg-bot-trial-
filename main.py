@@ -72,7 +72,9 @@ async def info_command(message: Message):
 
 @dp.message()
 async def message_handler(message: Message,state: FSMContext):
+    print("Received message:", message.text)
     current_state = await state.get_state()
+    print("Current state:", current_state)
     user = await db.check_user(message.chat.id)
     if user is None:
         await db.add_user(message.chat.id, message.from_user.username)
@@ -101,9 +103,9 @@ async def photo_handler(message: Message):
 
 async def main():
     await bot.set_my_commands(commands)
+    await db.connect()
     try:
         print("Bot started")
-        await db.connect()
         await dp.start_polling(bot)
     except Exception as e:
         print(e)
